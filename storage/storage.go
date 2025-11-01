@@ -24,7 +24,7 @@ func (s *MemoryStore) Save(id, url string) {
 
 func (s *MemoryStore) Get(id string) (string, bool) {
 	s.mu.RLock()
-	defer s.mu.RLock()
+	defer s.mu.RUnlock()
 	val, ok := s.data[id]
 	return val, ok
 }
