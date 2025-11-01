@@ -13,14 +13,20 @@ type request struct {
 	URL string `json:"url"`
 }
 
-func generateShortID() string {
+func generateShortID(store storage.Store) string {
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	b := make([]byte, 6)
-	for i := range b {
-		b[i] = charset[r.Intn(len(charset))]
+	for {
+		for i := range b {
+			b[i] = charset[r.Intn(len(charset))]
+		}
+		id := string(b)
+		_, exists := store.Get(string(b))
+		if !exists {
+			return id
+		}
 	}
-	return string(b)
 }
 
 func ShortenHandler(store storage.Store) http.HandlerFunc {
@@ -36,7 +42,7 @@ func ShortenHandler(store storage.Store) http.HandlerFunc {
 			return
 		}
 
-		id := generateShortID()
+		id := generateShortID(store)
 		store.Save(id, req.URL)
 
 		resp := map[string]string{"short_url": "http://localhost:8080/" + id}
