@@ -2,11 +2,6 @@ package storage
 
 import "sync"
 
-type Store interface {
-	Save(id, url string)
-	Get(id string) (string, bool)
-}
-
 type MemoryStore struct {
 	data map[string]string
 	mu   sync.RWMutex
